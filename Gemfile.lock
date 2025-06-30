@@ -195,10 +195,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-<<<<<<< Updated upstream
-=======
   debug (~> 1.0)
->>>>>>> Stashed changes
   dotenv (~> 2.8)
   factory_bot_rails (~> 6.2)
   ffaker (~> 2.21)
