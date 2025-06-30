@@ -7,7 +7,10 @@
 /spec/reports/
 /tmp/
 
+.rspec_status
+
 # Ignore Enviroments
 .env.*
 !.env.template
 !.env.test
+
