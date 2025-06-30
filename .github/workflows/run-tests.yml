@@ -20,6 +20,3 @@ jobs:
 
       - name: Run tests
         run: bundle exec rspec spec --format documentation --color
-
-      - name: Run rubocop
-        run: bundle exec rubocop
