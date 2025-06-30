@@ -42,7 +42,7 @@ ENV['MRI_PASSWORD'] = 'your_password'                             # Required
 handler = MriHook::RequestHandlers::ResidentsByPropertyHandler.new
 
 # Execute the request with the property ID
-residents = handler.execute(mri_property_id: 'GCNS01')
+residents = handler.execute(property_id: 'GCNS01')
 
 # Process the residents
 residents.each do |resident|
@@ -99,7 +99,7 @@ The ResidentLeaseDetailsByPropertyHandler allows you to retrieve lease details f
 handler = MriHook::RequestHandlers::ResidentLeaseDetailsByPropertyHandler.new
 
 # Option 1: Get lease details by property ID
-leases = handler.execute(mri_property_id: 'GCNS01')
+leases = handler.execute(property_id: 'GCNS01')
 
 # Option 2: Get lease details by last update date
 leases = handler.execute(last_update_date: '2020-02-25')
@@ -128,13 +128,13 @@ The OpenChargesHandler allows you to retrieve open charges for residents:
 handler = MriHook::RequestHandlers::OpenChargesHandler.new
 
 # Option 1: Get open charges by property ID
-charges = handler.execute(mri_property_id: 'GCNS01')
+charges = handler.execute(property_id: 'GCNS01')
 
 # Option 2: Get open charges by last update date
 charges = handler.execute(last_update: '2024-01-01')
 
 # Option 3: Get open charges by property ID and resident ID
-charges = handler.execute(mri_property_id: 'GCNS01', resident_id: '0000000502')
+charges = handler.execute(property_id: 'GCNS01', resident_id: '0000000502')
 
 # Process the open charges
 charges.each do |charge|
@@ -144,6 +144,33 @@ charges.each do |charge|
   puts "Charge Code: #{charge.charge_code} - #{charge.charge_code_description}"
   puts "Original Amount: #{charge.original_amount_value}, Unpaid Amount: #{charge.unpaid_amount_value}"
   puts "Late Fee: #{charge.late_fee?}, Auto-Generated: #{charge.auto_generated?}, Posted: #{charge.posted?}"
+  puts "---"
+end
+```
+
+### Getting Pending Move-Ins
+
+The PendingMoveInsHandler allows you to retrieve information about residents who are scheduled to move in:
+
+```ruby
+# Create a handler for the pending move-ins endpoint
+handler = MriHook::RequestHandlers::PendingMoveInsHandler.new
+
+# Get pending move-ins by property ID
+pending_move_ins = handler.execute(property_id: 'GCCH02')
+
+# Process the pending move-ins
+pending_move_ins.each do |move_in|
+  puts "Resident: #{move_in.full_name}"
+  puts "Property: #{move_in.property_id}, Building: #{move_in.building_id}, Unit: #{move_in.unit_id}"
+  puts "Scheduled Move-In Date: #{move_in.scheduled_move_in_date}"
+  puts "Email: #{move_in.email}"
+
+  # Access previous address information if available
+  if move_in.primary_previous_address
+    puts "Previous Address: #{move_in.primary_previous_address.full_address}"
+  end
+
   puts "---"
 end
 ```

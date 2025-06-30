@@ -70,11 +70,11 @@ RSpec.describe MriHook::RequestHandlers::ResidentsByPropertyHandler do
           { "RMPROPID" => property_id }
         )
 
-        handler.execute(mri_property_id: property_id)
+        handler.execute(property_id: property_id)
       end
 
       it "returns an array of Resident objects" do
-        residents = handler.execute(mri_property_id: property_id)
+        residents = handler.execute(property_id: property_id)
 
         expect(residents).to be_an(Array)
         expect(residents.size).to eq(2)
@@ -86,7 +86,7 @@ RSpec.describe MriHook::RequestHandlers::ResidentsByPropertyHandler do
 
     context "with missing property_id" do
       it "raises an ArgumentError" do
-        expect { handler.execute }.to raise_error(ArgumentError, "mri_property_id is required")
+        expect { handler.execute }.to raise_error(ArgumentError, "property_id is required")
       end
     end
 
@@ -96,7 +96,7 @@ RSpec.describe MriHook::RequestHandlers::ResidentsByPropertyHandler do
       end
 
       it "returns an empty array" do
-        residents = handler.execute(mri_property_id: property_id)
+        residents = handler.execute(property_id: property_id)
 
         expect(residents).to be_an(Array)
         expect(residents).to be_empty
@@ -109,7 +109,7 @@ RSpec.describe MriHook::RequestHandlers::ResidentsByPropertyHandler do
       end
 
       it "returns an empty array" do
-        residents = handler.execute(mri_property_id: property_id)
+        residents = handler.execute(property_id: property_id)
 
         expect(residents).to be_an(Array)
         expect(residents).to be_empty
