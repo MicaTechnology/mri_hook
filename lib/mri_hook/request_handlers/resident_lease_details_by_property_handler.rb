@@ -8,7 +8,7 @@ module MriHook
       # Execute the request to get resident lease details
       #
       # @param [Hash] params the parameters for the request
-      # @option params [String] :mri_property_id The MRI property ID
+      # @option params [String] :property_id The MRI property ID
       # @option params [String] :last_update_date The last update date
       # @option params [String] :start_date The start date
       # @option params [String] :end_date The end date (required if start_date is provided)
@@ -35,7 +35,7 @@ module MriHook
       private
 
       def validate_params(params)
-        if params[:mri_property_id]
+        if params[:property_id]
           # Valid: RmPropID is provided
           return
         elsif params[:last_update_date]
@@ -47,7 +47,7 @@ module MriHook
           return
         else
           raise ArgumentError, "Required parameters missing. You must provide one of the following: " \
-                              "1) mri_property_id, 2) last_update_date, 3) start_date and end_date"
+                              "1) property_id, 2) last_update_date, 3) start_date and end_date"
         end
       end
 
@@ -55,7 +55,7 @@ module MriHook
         api_params = {}
 
         # Map Ruby-style parameter names to API parameter names
-        api_params['RMPROPID'] = params[:mri_property_id] if params[:mri_property_id]
+        api_params['RMPROPID'] = params[:property_id] if params[:property_id]
         api_params['LastUpdateDate'] = params[:last_update_date] if params[:last_update_date]
         api_params['StartDate'] = params[:start_date] if params[:start_date]
         api_params['EndDate'] = params[:end_date] if params[:end_date]

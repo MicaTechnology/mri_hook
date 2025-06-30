@@ -60,18 +60,18 @@ RSpec.describe MriHook::RequestHandlers::OpenChargesHandler do
   end
 
   describe "#execute" do
-    context "with mri_property_id parameter" do
+    context "with property_id parameter" do
       it "calls the API with the correct parameters" do
         expect(handler.api_client).to receive(:get).with(
           api_endpoint,
           { "RMPROPID" => property_id }
         )
 
-        handler.execute(mri_property_id: property_id)
+        handler.execute(property_id: property_id)
       end
 
       it "returns an array of BillingItem objects" do
-        billing_items = handler.execute(mri_property_id: property_id)
+        billing_items = handler.execute(property_id: property_id)
 
         expect(billing_items).to be_an(Array)
         expect(billing_items.size).to eq(2)
@@ -92,14 +92,14 @@ RSpec.describe MriHook::RequestHandlers::OpenChargesHandler do
       end
     end
 
-    context "with mri_property_id and resident_id parameters" do
+    context "with property_id and resident_id parameters" do
       it "calls the API with the correct parameters" do
         expect(handler.api_client).to receive(:get).with(
           api_endpoint,
           { "RMPROPID" => property_id, "ResidentID" => resident_id }
         )
 
-        handler.execute(mri_property_id: property_id, resident_id: resident_id)
+        handler.execute(property_id: property_id, resident_id: resident_id)
       end
     end
 
@@ -115,7 +115,7 @@ RSpec.describe MriHook::RequestHandlers::OpenChargesHandler do
       end
 
       it "returns an empty array" do
-        billing_items = handler.execute(mri_property_id: property_id)
+        billing_items = handler.execute(property_id: property_id)
 
         expect(billing_items).to be_an(Array)
         expect(billing_items).to be_empty
@@ -128,7 +128,7 @@ RSpec.describe MriHook::RequestHandlers::OpenChargesHandler do
       end
 
       it "returns an empty array" do
-        billing_items = handler.execute(mri_property_id: property_id)
+        billing_items = handler.execute(property_id: property_id)
 
         expect(billing_items).to be_an(Array)
         expect(billing_items).to be_empty

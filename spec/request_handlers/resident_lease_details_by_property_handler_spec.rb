@@ -115,18 +115,18 @@ RSpec.describe MriHook::RequestHandlers::ResidentLeaseDetailsByPropertyHandler d
   end
 
   describe "#execute" do
-    context "with mri_property_id parameter" do
+    context "with property_id parameter" do
       it "calls the API with the correct parameters" do
         expect(handler.api_client).to receive(:get).with(
           api_endpoint,
           { "RMPROPID" => property_id }
         )
 
-        handler.execute(mri_property_id: property_id)
+        handler.execute(property_id: property_id)
       end
 
       it "returns an array of Lease objects" do
-        leases = handler.execute(mri_property_id: property_id)
+        leases = handler.execute(property_id: property_id)
 
         expect(leases).to be_an(Array)
         expect(leases.size).to eq(2)
@@ -174,7 +174,7 @@ RSpec.describe MriHook::RequestHandlers::ResidentLeaseDetailsByPropertyHandler d
       end
 
       it "returns an empty array" do
-        leases = handler.execute(mri_property_id: property_id)
+        leases = handler.execute(property_id: property_id)
 
         expect(leases).to be_an(Array)
         expect(leases).to be_empty
@@ -187,7 +187,7 @@ RSpec.describe MriHook::RequestHandlers::ResidentLeaseDetailsByPropertyHandler d
       end
 
       it "returns an empty array" do
-        leases = handler.execute(mri_property_id: property_id)
+        leases = handler.execute(property_id: property_id)
 
         expect(leases).to be_an(Array)
         expect(leases).to be_empty
