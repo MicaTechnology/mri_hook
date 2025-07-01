@@ -25,9 +25,9 @@ module MriHook
 
         # Handle the nested PreviousAddress objects
         @previous_addresses = []
-        if params['PreviousAddress'] && params['PreviousAddress']['entry']
+        if params['PreviousAddress']
           # If there's only one entry, it will be a hash, otherwise it will be an array of hashes
-          entries = params['PreviousAddress']['entry'].is_a?(Array) ? params['PreviousAddress']['entry'] : [params['PreviousAddress']['entry']]
+          entries = params['PreviousAddress'].is_a?(Array) ? params['PreviousAddress'] : [params['PreviousAddress']]
           @previous_addresses = entries.map { |entry| MriHook::Models::PreviousAddress.new(entry) }
         end
       end

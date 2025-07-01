@@ -33,7 +33,19 @@ ENV['MRI_USERNAME'] = 'your_username'                             # Required
 ENV['MRI_PASSWORD'] = 'your_password'                             # Required
 ```
 
+You can create your own `.env.development` file in the root of your project to set these variables, or you can set them directly in your environment.
+Below you can see how to "load" them in irb
+
 ## Usage
+If run in IRB, important to run the following command to load the gem:
+
+```ruby
+require 'bundler/setup'
+require 'mri_hook'
+require 'dotenv'
+
+Dotenv.load('.env.development')
+```
 
 ### Getting Residents by Property ID
 
