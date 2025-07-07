@@ -171,16 +171,16 @@ RSpec.describe MriHook::RequestHandlers::ResidentsHandler do
       end
     end
 
-    context "with name_id parameter" do
-      let(:name_id) { "0000000298" }
+    context "with resident_name_id parameter" do
+      let(:resident_name_id) { "0000000298" }
 
       it "calls the API with the correct parameters" do
         expect(handler.api_client).to receive(:get).with(
           api_endpoint,
-          { "NameID" => name_id, "IncludePII" => "Y" }
+          { "NameID" => resident_name_id, "IncludePII" => "Y" }
         )
 
-        handler.execute(name_id: name_id)
+        handler.execute(resident_name_id: resident_name_id)
       end
     end
 
@@ -274,7 +274,7 @@ RSpec.describe MriHook::RequestHandlers::ResidentsHandler do
       end
 
       it "correctly maps the response to Resident objects" do
-        residents = handler.execute(name_id: "0000000298")
+        residents = handler.execute(resident_name_id: "0000000298")
 
         expect(residents).to be_an(Array)
         expect(residents.size).to eq(1)

@@ -4,13 +4,13 @@ require 'debug'
 module MriHook
   module Models
     class PreviousAddress
-      attr_accessor :resident_id, :address1, :address2, :address3, :city, :state, :zip, :country, :phone
+      attr_accessor :resident_name_id, :address1, :address2, :address3, :city, :state, :zip, :country, :phone
 
       # Initialize a new PreviousAddress object
       #
       # @param [Hash] params the parameters to initialize the object with
       def initialize(params = {})
-        @resident_id = params['ResidentID']
+        @resident_name_id = params['ResidentID']
         @address1 = params['Address1']
         @address2 = params['Address2']
         @address3 = params['Address3']

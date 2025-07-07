@@ -24,8 +24,8 @@ RSpec.describe MriHook::RequestHandlers::PendingMoveInsHandler do
           "ScheduledMoveInDate" => "2025-06-18T00:00:00.0000000",
           "Email" => "jlegorreta@granciudad.mx",
           "Phone" => nil,
-          "PreviousAddress" => {
-            "entry" => {
+          "PreviousAddress" => [
+            {
               "ResidentID" => "00S0009003",
               "Address1" => "Calle Paraiso",
               "Address2" => "Col Centro",
@@ -36,7 +36,7 @@ RSpec.describe MriHook::RequestHandlers::PendingMoveInsHandler do
               "Country" => "MX",
               "Phone" => nil
             }
-          }
+          ]
         }
       ]
     }
@@ -64,7 +64,7 @@ RSpec.describe MriHook::RequestHandlers::PendingMoveInsHandler do
         expect(pending_move_ins).to be_an(Array)
         expect(pending_move_ins.size).to eq(1)
         expect(pending_move_ins.first).to be_a(MriHook::Models::PendingMoveIn)
-        expect(pending_move_ins.first.resident_id).to eq("00S0009003")
+        expect(pending_move_ins.first.resident_name_id).to eq("00S0009003")
         expect(pending_move_ins.first.first_name).to eq("MICA TESTING")
         expect(pending_move_ins.first.last_name).to eq("MICA TESTING")
         expect(pending_move_ins.first.property_id).to eq("GCCH02")
@@ -83,7 +83,7 @@ RSpec.describe MriHook::RequestHandlers::PendingMoveInsHandler do
         expect(pending_move_ins.first.previous_addresses).to be_an(Array)
         expect(pending_move_ins.first.previous_addresses.size).to eq(1)
         expect(pending_move_ins.first.previous_addresses.first).to be_a(MriHook::Models::PreviousAddress)
-        expect(pending_move_ins.first.previous_addresses.first.resident_id).to eq("00S0009003")
+        expect(pending_move_ins.first.previous_addresses.first.resident_name_id).to eq("00S0009003")
         expect(pending_move_ins.first.previous_addresses.first.address1).to eq("Calle Paraiso")
         expect(pending_move_ins.first.previous_addresses.first.address2).to eq("Col Centro")
         expect(pending_move_ins.first.previous_addresses.first.city).to eq("Guanajuato")

@@ -21,7 +21,7 @@ RSpec.describe MriHook::Models::PreviousAddress do
 
   describe "#initialize" do
     it "sets attributes from the data" do
-      expect(subject.resident_id).to eq("00S0009003")
+      expect(subject.resident_name_id).to eq("00S0009003")
       expect(subject.address1).to eq("Calle Paraiso")
       expect(subject.address2).to eq("Col Centro")
       expect(subject.address3).to be_nil

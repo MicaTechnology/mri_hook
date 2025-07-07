@@ -9,7 +9,7 @@ module MriHook
       #
       # @param [Hash] params the parameters for the request
       # @option params [String] :last_update The last update date (format: MM-DD-YYYY)
-      # @option params [String] :name_id The resident name ID
+      # @option params [String] :resident_name_id The resident name ID
       # @option params [String] :start_date The start date (format: MM-DD-YYYY)
       # @option params [String] :end_date The end date (format: MM-DD-YYYY)
       # @option params [String] :property_id The property ID
@@ -42,7 +42,7 @@ module MriHook
         if params[:last_update]
           # Valid: LastUpdate is provided
           return
-        elsif params[:name_id]
+        elsif params[:resident_name_id]
           # Valid: NameID is provided
           return
         elsif params[:start_date] && params[:end_date]
@@ -53,7 +53,7 @@ module MriHook
           return
         else
           raise ArgumentError, "Required parameters missing. You must provide one of the following combinations: " \
-                              "1) last_update, 2) name_id, 3) start_date and end_date, " \
+                              "1) last_update, 2) resident_name_id, 3) start_date and end_date, " \
                               "4) property_id, type, and status"
         end
       end
@@ -63,7 +63,7 @@ module MriHook
 
         # Map Ruby-style parameter names to API parameter names
         api_params['LastUpdate'] = params[:last_update] if params[:last_update]
-        api_params['NameID'] = params[:name_id] if params[:name_id]
+        api_params['NameID'] = params[:resident_name_id] if params[:resident_name_id]
         api_params['StartDate'] = params[:start_date] if params[:start_date]
         api_params['EndDate'] = params[:end_date] if params[:end_date]
         api_params['PropertyID'] = params[:property_id] if params[:property_id]
