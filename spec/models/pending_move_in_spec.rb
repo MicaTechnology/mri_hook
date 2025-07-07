@@ -30,9 +30,9 @@ RSpec.describe MriHook::Models::PendingMoveIn do
       "ScheduledMoveInDate" => "2025-06-18T00:00:00.0000000",
       "Email" => "jlegorreta@granciudad.mx",
       "Phone" => nil,
-      "PreviousAddress" => {
-        "entry" => previous_address_data
-      }
+      "PreviousAddress" => [
+        previous_address_data
+      ]
     }
   end
 
@@ -49,22 +49,20 @@ RSpec.describe MriHook::Models::PendingMoveIn do
       "ScheduledMoveInDate" => "2025-06-18T00:00:00.0000000",
       "Email" => "jlegorreta@granciudad.mx",
       "Phone" => nil,
-      "PreviousAddress" => {
-        "entry" => [
-          previous_address_data,
-          {
-            "ResidentID" => "00S0009003",
-            "Address1" => "Another Address",
-            "Address2" => "Another Detail",
-            "Address3" => nil,
-            "City" => "Mexico City",
-            "State" => "CDMX",
-            "Zip" => "12345",
-            "Country" => "MX",
-            "Phone" => nil
-          }
-        ]
-      }
+      "PreviousAddress" => [
+        previous_address_data,
+        {
+          "ResidentID" => "00S0009003",
+          "Address1" => "Another Address",
+          "Address2" => "Another Detail",
+          "Address3" => nil,
+          "City" => "Mexico City",
+          "State" => "CDMX",
+          "Zip" => "12345",
+          "Country" => "MX",
+          "Phone" => nil
+        }
+      ]
     }
   end
 
@@ -89,7 +87,7 @@ RSpec.describe MriHook::Models::PendingMoveIn do
       subject { described_class.new(pending_move_in_data) }
 
       it "sets attributes from the data" do
-        expect(subject.resident_id).to eq("00S0009003")
+        expect(subject.resident_name_id).to eq("00S0009003")
         expect(subject.first_name).to eq("MICA TESTING")
         expect(subject.last_name).to eq("MICA TESTING")
         expect(subject.property_id).to eq("GCCH02")
@@ -106,7 +104,7 @@ RSpec.describe MriHook::Models::PendingMoveIn do
         expect(subject.previous_addresses).to be_an(Array)
         expect(subject.previous_addresses.size).to eq(1)
         expect(subject.previous_addresses.first).to be_a(MriHook::Models::PreviousAddress)
-        expect(subject.previous_addresses.first.resident_id).to eq("00S0009003")
+        expect(subject.previous_addresses.first.resident_name_id).to eq("00S0009003")
         expect(subject.previous_addresses.first.address1).to eq("Calle Paraiso")
       end
     end
@@ -118,7 +116,7 @@ RSpec.describe MriHook::Models::PendingMoveIn do
         expect(subject.previous_addresses).to be_an(Array)
         expect(subject.previous_addresses.size).to eq(2)
         expect(subject.previous_addresses.first).to be_a(MriHook::Models::PreviousAddress)
-        expect(subject.previous_addresses.first.resident_id).to eq("00S0009003")
+        expect(subject.previous_addresses.first.resident_name_id).to eq("00S0009003")
         expect(subject.previous_addresses.first.address1).to eq("Calle Paraiso")
         expect(subject.previous_addresses.last).to be_a(MriHook::Models::PreviousAddress)
         expect(subject.previous_addresses.last.address1).to eq("Another Address")

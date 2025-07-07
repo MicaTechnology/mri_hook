@@ -79,7 +79,7 @@ handler = MriHook::RequestHandlers::ResidentsHandler.new
 residents = handler.execute(last_update: '01-01-2024')
 
 # Option 2: Get residents by name ID
-residents = handler.execute(name_id: '0000000298')
+residents = handler.execute(resident_name_id: '0000000298')
 
 # Option 3: Get residents by date range
 residents = handler.execute(start_date: '01-01-2024', end_date: '01-31-2024')
@@ -183,6 +183,35 @@ pending_move_ins.each do |move_in|
     puts "Previous Address: #{move_in.primary_previous_address.full_address}"
   end
 
+  puts "---"
+end
+```
+
+### Getting Resident Ledger Transactions
+
+The ResidentLedgerHandler allows you to retrieve ledger transactions for a resident:
+
+```ruby
+# Create a handler for the resident ledger endpoint
+handler = MriHook::RequestHandlers::ResidentLedgerHandler.new
+
+# Get ledger transactions for a resident
+# Note: All parameters are required and dates must be in yyyy-mm-dd format
+transactions = handler.execute(
+  start_date: '2024-01-01',
+  end_date: '2025-06-30',
+  resident_name_id: '0000009006',
+  property_id: 'GCCH01'
+)
+
+# Process the ledger transactions
+transactions.each do |transaction|
+  puts "Transaction ID: #{transaction.transaction_id}"
+  puts "Date: #{transaction.transaction_date}"
+  puts "Description: #{transaction.description}"
+  puts "Amount: #{transaction.transaction_amount_value}"
+  puts "Type: #{transaction.payment? ? 'Payment' : (transaction.charge? ? 'Charge' : 'Other')}"
+  puts "Posted: #{transaction.posted? ? 'Yes' : 'No'}"
   puts "---"
 end
 ```

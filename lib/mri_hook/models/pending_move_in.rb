@@ -3,7 +3,7 @@
 module MriHook
   module Models
     class PendingMoveIn
-      attr_accessor :resident_id, :first_name, :last_name, :property_id, :building_id, :unit_id,
+      attr_accessor :resident_name_id, :first_name, :last_name, :property_id, :building_id, :unit_id,
                     :lease_id, :resident_status, :scheduled_move_in_date, :email, :phone,
                     :previous_addresses
 
@@ -11,7 +11,7 @@ module MriHook
       #
       # @param [Hash] params the parameters to initialize the object with
       def initialize(params = {})
-        @resident_id = params['ResidentID']
+        @resident_name_id = params['ResidentID']
         @first_name = params['FirstName']
         @last_name = params['LastName']
         @property_id = params['PropertyID']
