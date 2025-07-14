@@ -10,7 +10,7 @@ module MriHook
       # @param [Hash] params the parameters for the request
       # @option params [String] :property_id The MRI property ID (required when last_update is blank)
       # @option params [String] :last_update The last update date
-      # @option params [String] :resident_id The resident ID (optional)
+      # @option params [String] :resident_id The resident ID/NameID (optional)
       # @return [Array<MriHook::Models::BillingItem>] Array of billing item objects
       def execute(params = {})
         validate_params(params)
@@ -52,7 +52,7 @@ module MriHook
         # Map Ruby-style parameter names to API parameter names
         api_params['LASTUPDATE'] = params[:last_update] if params[:last_update]
         api_params['RMPROPID'] = params[:property_id] if params[:property_id]
-        api_params['ResidentID'] = params[:resident_id] if params[:resident_id]
+        api_params['NameID'] = params[:resident_id] if params[:resident_id]
 
         api_params
       end
