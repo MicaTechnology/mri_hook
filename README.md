@@ -41,10 +41,10 @@ If run in IRB, important to run the following command to load the gem:
 
 ```ruby
 require 'bundler/setup'
-require 'mri_hook'
 require 'dotenv'
 
 Dotenv.load('.env.development')
+require 'mri_hook'
 ```
 
 ### Getting Residents by Property ID
@@ -215,6 +215,49 @@ transactions.each do |transaction|
   puts "---"
 end
 ```
+
+### Posting Payment Details
+
+The PaymentSubmitterHandler allows you to post payment details to MRI:
+
+```ruby
+# Create a handler for the payment details endpoint
+handler = MriHook::RequestHandlers::PaymentSubmitterHandler.new
+
+# Post payment details
+# Note: All parameters except check_url and deposit_date are required
+# Also, on every transaction: check_number, external_transaction_number, and external_batch_id are required and they can't be repeated
+payment = handler.execute(
+  resident_name_id: '0000000467',
+  property_id: 'GCNS01',
+  paid_at: DateTime.parse('2024-02-22'),
+  amount: 1000.00,
+  check_number: '1232',
+  external_transaction_number: '0000000002',
+  charge_id: '0000325496', # Coming from the OpenChargesHandler/Ledger
+  external_batch_id: 'B1',
+  description: 'Custom Description',
+  batch_description: 'Custom Description',
+  check_url: 'http://example.mrisoftware.com/checkImage', # Optional, defaults to nil
+  deposit_date: DateTime.parse('2024-12-12') # Optional, defaults to paid_at
+)
+
+# Process the payment response 
+puts "Transaction ID: #{payment.transaction_id}"
+puts "Resident Name ID: #{payment.resident_name_id}"
+puts "Property ID: #{payment.property_id}"
+puts "Charge Code: #{payment.charge_code}"
+puts "Payment Amount: #{payment.amount}"
+puts "Batch ID: #{payment.batch_id}"
+puts "Transaction ID": "#{payment.transaction_id}" # This is the ID of the transaction in MRI
+```
+
+Note the following field length restrictions:
+- check_number: maximum 15 characters
+- external_transaction_number: maximum 10 characters
+- external_batch_id: maximum 30 characters
+- description: maximum 30 characters
+- batch_description: maximum 30 characters
 
 ## Development
 

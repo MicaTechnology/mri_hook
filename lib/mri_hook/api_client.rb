@@ -19,7 +19,6 @@ module MriHook
     def get(api_endpoint, params = {})
       url = build_url(api_endpoint, params)
       headers = { content_type: :json, accept: :json }
-
       response = RestClient::Request.execute(
         method: :get,
         url: url,
@@ -27,7 +26,31 @@ module MriHook
         user: @username,
         password: @password
       )
+      JSON.parse(response.body)
+    rescue RestClient::ExceptionWithResponse => e
+      handle_error(e)
+    end
 
+    def post(api_endpoint, params = {}, payload = {}, include_metadata: true)
+      url = build_url(api_endpoint, params)
+      headers = { content_type: :json, accept: :json }
+
+      if include_metadata && !payload.key?('odata.metadata')
+        metadata_url = build_metadata_url(api_endpoint)
+        payload = {
+          'odata.metadata' => metadata_url,
+          'value' => payload['value'] || [payload]
+        }
+      end
+
+      response = RestClient::Request.execute(
+        method: :post,
+        url: url,
+        payload: payload.to_json,
+        headers: headers,
+        user: @username,
+        password: @password
+      )
       JSON.parse(response.body)
     rescue RestClient::ExceptionWithResponse => e
       handle_error(e)
@@ -39,6 +62,11 @@ module MriHook
       query_params = { '$api' => api_endpoint, '$format' => 'json' }.merge(params)
       query_string = query_params.map { |k, v| "#{k}=#{v}" }.join('&')
       "#{@base_url}?#{query_string}"
+    end
+
+    def build_metadata_url(api_endpoint)
+      container_name = api_endpoint.downcase
+      "#{@base_url}?$api=#{api_endpoint}&$metadata#MRI.#{container_name}-container/#{container_name}"
     end
 
     def handle_error(exception)
