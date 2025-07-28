@@ -96,7 +96,7 @@ RSpec.describe MriHook::RequestHandlers::OpenChargesHandler do
       it "calls the API with the correct parameters" do
         expect(handler.api_client).to receive(:get).with(
           api_endpoint,
-          { "RMPROPID" => property_id, "ResidentID" => resident_id }
+          { "RMPROPID" => property_id, "NameID" => resident_id }
         )
 
         handler.execute(property_id: property_id, resident_id: resident_id)
