@@ -16,7 +16,9 @@ module MriHook
       # @option params [String] :type The resident type
       # @option params [String] :status The resident status
       # @option params [Boolean] :include_pii Whether to include PII (defaults to true)
-      # @return [Array<MriHook::Models::Resident>] Array of resident objects
+      # @option params [Integer] :top The maximum number of records to return (default: 300)
+      # @option params [Integer] :skip The number of records to skip (default: nil)
+      # @return [Hash] Hash containing residents and next_link information
       def execute(params = {})
         validate_params(params)
 
@@ -74,15 +76,25 @@ module MriHook
         include_pii = params.key?(:include_pii) ? params[:include_pii] : true
         api_params['IncludePII'] = include_pii ? 'Y' : 'N'
 
+        # Add pagination parameters if provided
+        api_params[:top] = params[:top] if params[:top]
+        api_params[:skip] = params[:skip] if params[:skip]
+
         api_params
       end
 
       def parse_response(response)
-        return [] unless response['value']
+        return { values: [], next_link: nil } unless response['value']
 
-        response['value'].map do |resident_data|
+        residents = response['value'].map do |resident_data|
           MriHook::Models::Resident.new(resident_data)
         end
+
+        # Return both the residents and the next_link information
+        {
+          values: residents,
+          next_link: response['next_link']
+        }
       end
     end
   end

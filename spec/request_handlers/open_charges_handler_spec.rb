@@ -54,9 +54,16 @@ RSpec.describe MriHook::RequestHandlers::OpenChargesHandler do
     }
   end
 
+  let(:processed_response_body) do
+    {
+      'value' => response_body['value'],
+      'next_link' => response_body['nextLink']
+    }
+  end
+
   before do
     # Mock the API client
-    allow(handler.api_client).to receive(:get).and_return(response_body)
+    allow(handler.api_client).to receive(:get).and_return(processed_response_body)
   end
 
   describe "#execute" do
@@ -70,14 +77,22 @@ RSpec.describe MriHook::RequestHandlers::OpenChargesHandler do
         handler.execute(property_id: property_id)
       end
 
-      it "returns an array of BillingItem objects" do
-        billing_items = handler.execute(property_id: property_id)
+      it "returns a hash with billing items and next_link information" do
+        result = handler.execute(property_id: property_id)
 
+        expect(result).to be_a(Hash)
+        expect(result).to have_key(:values)
+        expect(result).to have_key(:next_link)
+
+        billing_items = result[:values]
         expect(billing_items).to be_an(Array)
         expect(billing_items.size).to eq(2)
         expect(billing_items.first).to be_a(MriHook::Models::BillingItem)
         expect(billing_items.first.charge_id).to eq("0000466294")
         expect(billing_items.last.charge_id).to eq("0000466295")
+
+        next_link = result[:next_link]
+        expect(next_link).to eq(response_body['nextLink'])
       end
     end
 
@@ -103,6 +118,17 @@ RSpec.describe MriHook::RequestHandlers::OpenChargesHandler do
       end
     end
 
+    context "with pagination parameters" do
+      it "passes top and skip parameters to the API" do
+        expect(handler.api_client).to receive(:get).with(
+          api_endpoint,
+          { "RMPROPID" => property_id, top: 50, skip: 100 }
+        )
+
+        handler.execute(property_id: property_id, top: 50, skip: 100)
+      end
+    end
+
     context "with missing required parameters" do
       it "raises an ArgumentError when no parameters are provided" do
         expect { handler.execute }.to raise_error(ArgumentError, /Required parameters missing/)
@@ -114,11 +140,16 @@ RSpec.describe MriHook::RequestHandlers::OpenChargesHandler do
         allow(handler.api_client).to receive(:get).and_return({ "value" => [] })
       end
 
-      it "returns an empty array" do
-        billing_items = handler.execute(property_id: property_id)
+      it "returns a hash with empty values and nil next_link" do
+        result = handler.execute(property_id: property_id)
 
-        expect(billing_items).to be_an(Array)
-        expect(billing_items).to be_empty
+        expect(result).to be_a(Hash)
+        expect(result).to have_key(:values)
+        expect(result).to have_key(:next_link)
+
+        expect(result[:values]).to be_an(Array)
+        expect(result[:values]).to be_empty
+        expect(result[:next_link]).to be_nil
       end
     end
 
@@ -127,11 +158,16 @@ RSpec.describe MriHook::RequestHandlers::OpenChargesHandler do
         allow(handler.api_client).to receive(:get).and_return({})
       end
 
-      it "returns an empty array" do
-        billing_items = handler.execute(property_id: property_id)
+      it "returns a hash with empty values and nil next_link" do
+        result = handler.execute(property_id: property_id)
 
-        expect(billing_items).to be_an(Array)
-        expect(billing_items).to be_empty
+        expect(result).to be_a(Hash)
+        expect(result).to have_key(:values)
+        expect(result).to have_key(:next_link)
+
+        expect(result[:values]).to be_an(Array)
+        expect(result[:values]).to be_empty
+        expect(result[:next_link]).to be_nil
       end
     end
   end

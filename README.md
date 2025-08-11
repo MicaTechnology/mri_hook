@@ -54,16 +54,21 @@ require 'mri_hook'
 handler = MriHook::RequestHandlers::ResidentsByPropertyHandler.new
 
 # Execute the request with the property ID
-residents = handler.execute(property_id: 'GCNS01')
+result = handler.execute(property_id: 'GCNS01')
 
 # Process the residents
-residents.each do |resident|
+result[:values].each do |resident|
   puts "Name: #{resident.full_name}"
   puts "Status: #{resident.status}"
   puts "Active: #{resident.active?}"
   puts "Owner: #{resident.owner?}"
   puts "Unit: #{resident.unit_id}"
   puts "---"
+end
+
+# Check if there are more pages
+if result[:next_link]
+  puts "More residents available. Use pagination to retrieve them."
 end
 ```
 
@@ -76,29 +81,34 @@ The ResidentsHandler allows you to retrieve residents using different parameter 
 handler = MriHook::RequestHandlers::ResidentsHandler.new
 
 # Option 1: Get residents by last update date
-residents = handler.execute(last_update: '01-01-2024')
+result = handler.execute(last_update: '01-01-2024')
 
 # Option 2: Get residents by name ID
-residents = handler.execute(resident_name_id: '0000000298')
+result = handler.execute(resident_name_id: '0000000298')
 
 # Option 3: Get residents by date range
-residents = handler.execute(start_date: '01-01-2024', end_date: '01-31-2024')
+result = handler.execute(start_date: '01-01-2024', end_date: '01-31-2024')
 
 # Option 4: Get residents by property ID, type, and status
-residents = handler.execute(property_id: 'GCNS01', type: 'R', status: 'O')
+result = handler.execute(property_id: 'GCNS01', type: 'R', status: 'O')
 
 # You can also control whether to include PII (Personally Identifiable Information)
 # By default, PII is included (include_pii: true)
-residents = handler.execute(last_update: '01-01-2024', include_pii: false)
+result = handler.execute(last_update: '01-01-2024', include_pii: false)
 
 # Process the residents
-residents.each do |resident|
+result[:values].each do |resident|
   puts "Name: #{resident.full_name}"
   puts "Status: #{resident.status}"
   puts "Active: #{resident.active?}"
   puts "Owner: #{resident.owner?}"
   puts "Unit: #{resident.unit_id}"
   puts "---"
+end
+
+# Check if there are more pages
+if result[:next_link]
+  puts "More residents available. Use pagination to retrieve them."
 end
 ```
 
@@ -111,16 +121,16 @@ The ResidentLeaseDetailsByPropertyHandler allows you to retrieve lease details f
 handler = MriHook::RequestHandlers::ResidentLeaseDetailsByPropertyHandler.new
 
 # Option 1: Get lease details by property ID
-leases = handler.execute(property_id: 'GCNS01')
+result = handler.execute(property_id: 'GCNS01')
 
 # Option 2: Get lease details by last update date
-leases = handler.execute(last_update_date: '2020-02-25')
+result = handler.execute(last_update_date: '2020-02-25')
 
 # Option 3: Get lease details by date range
-leases = handler.execute(start_date: '2019-05-01', end_date: '2020-04-30')
+result = handler.execute(start_date: '2019-05-01', end_date: '2020-04-30')
 
 # Process the lease details
-leases.each do |lease|
+result[:values].each do |lease|
   puts "Resident: #{lease.full_name}"
   puts "Property: #{lease.property_id}, Building: #{lease.building_id}, Unit: #{lease.unit_id}"
   puts "Lease Start: #{lease.lease_start}, Lease End: #{lease.lease_end}"
@@ -128,6 +138,11 @@ leases.each do |lease|
   puts "Current: #{lease.current?}, Month-to-Month: #{lease.month_to_month?}"
   puts "Has Pet: #{lease.has_pet?}"
   puts "---"
+end
+
+# Check if there are more pages
+if result[:next_link]
+  puts "More lease details available. Use pagination to retrieve them."
 end
 ```
 
@@ -140,16 +155,16 @@ The OpenChargesHandler allows you to retrieve open charges for residents:
 handler = MriHook::RequestHandlers::OpenChargesHandler.new
 
 # Option 1: Get open charges by property ID
-charges = handler.execute(property_id: 'GCNS01')
+result = handler.execute(property_id: 'GCNS01')
 
 # Option 2: Get open charges by last update date
-charges = handler.execute(last_update: '2024-01-01')
+result = handler.execute(last_update: '2024-01-01')
 
 # Option 3: Get open charges by property ID and resident ID
-charges = handler.execute(property_id: 'GCNS01', resident_id: '0000000502')
+result = handler.execute(property_id: 'GCNS01', resident_id: '0000000502')
 
 # Process the open charges
-charges.each do |charge|
+result[:values].each do |charge|
   puts "Resident: #{charge.full_name}"
   puts "Property: #{charge.property_id}, Unit: #{charge.unit_unique_tag}"
   puts "Charge Date: #{charge.charge_date}, Description: #{charge.description}"
@@ -157,6 +172,11 @@ charges.each do |charge|
   puts "Original Amount: #{charge.original_amount_value}, Unpaid Amount: #{charge.unpaid_amount_value}"
   puts "Late Fee: #{charge.late_fee?}, Auto-Generated: #{charge.auto_generated?}, Posted: #{charge.posted?}"
   puts "---"
+end
+
+# Check if there are more pages
+if result[:next_link]
+  puts "More charges available. Use pagination to retrieve them."
 end
 ```
 
@@ -169,10 +189,10 @@ The PendingMoveInsHandler allows you to retrieve information about residents who
 handler = MriHook::RequestHandlers::PendingMoveInsHandler.new
 
 # Get pending move-ins by property ID
-pending_move_ins = handler.execute(property_id: 'GCCH02')
+result = handler.execute(property_id: 'GCCH02')
 
 # Process the pending move-ins
-pending_move_ins.each do |move_in|
+result[:values].each do |move_in|
   puts "Resident: #{move_in.full_name}"
   puts "Property: #{move_in.property_id}, Building: #{move_in.building_id}, Unit: #{move_in.unit_id}"
   puts "Scheduled Move-In Date: #{move_in.scheduled_move_in_date}"
@@ -184,6 +204,11 @@ pending_move_ins.each do |move_in|
   end
 
   puts "---"
+end
+
+# Check if there are more pages
+if result[:next_link]
+  puts "More pending move-ins available. Use pagination to retrieve them."
 end
 ```
 
@@ -197,7 +222,7 @@ handler = MriHook::RequestHandlers::ResidentLedgerHandler.new
 
 # Get ledger transactions for a resident
 # Note: All parameters are required and dates must be in yyyy-mm-dd format
-transactions = handler.execute(
+result = handler.execute(
   start_date: '2024-01-01',
   end_date: '2025-06-30',
   resident_name_id: '0000009006',
@@ -205,7 +230,7 @@ transactions = handler.execute(
 )
 
 # Process the ledger transactions
-transactions.each do |transaction|
+result[:values].each do |transaction|
   puts "Transaction ID: #{transaction.transaction_id}"
   puts "Date: #{transaction.transaction_date}"
   puts "Description: #{transaction.description}"
@@ -213,6 +238,11 @@ transactions.each do |transaction|
   puts "Type: #{transaction.payment? ? 'Payment' : (transaction.charge? ? 'Charge' : 'Other')}"
   puts "Posted: #{transaction.posted? ? 'Yes' : 'No'}"
   puts "---"
+end
+
+# Check if there are more pages
+if result[:next_link]
+  puts "More transactions available. Use pagination to retrieve them."
 end
 ```
 
@@ -264,6 +294,55 @@ Note the following field length restrictions:
 After checking out the repo, run `bin/setup` to install dependencies. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
 
 To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and the created tag, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+
+## Pagination
+
+MRI API endpoints that return large datasets support pagination. The MriHook gem handles this by returning a hash with two keys:
+
+- `values`: An array of objects (residents, leases, transactions, etc.)
+- `next_link`: A URL string for the next page of results, or `nil` if there are no more pages
+
+### Using Pagination
+
+All request handlers now return a hash with the following structure:
+
+```ruby
+{
+  values: [/* Array of objects (residents, leases, etc.) */],
+  next_link: "https://mrix5api.saas.mrisoftware.com/mriapiservices/api.asp?%24api=..."  # URL for next page or nil
+}
+```
+
+To paginate through results, you can use the `next_link` value to determine if there are more pages available, and then make subsequent requests with the appropriate pagination parameters:
+
+```ruby
+# Create a handler
+handler = MriHook::RequestHandlers::ResidentsByPropertyHandler.new
+
+# Get the first page of results (default is 300 records)
+result = handler.execute(property_id: 'GCNS01')
+
+# Process the current page of residents
+result[:values].each do |resident|
+  puts "Name: #{resident.full_name}"
+end
+
+# Check if there are more pages
+if result[:next_link]
+  # Extract pagination parameters from next_link
+  # The next_link URL typically includes top and skip parameters
+  # You can parse these or simply use your own values
+
+  # Get the next page (for example, skip the first 300 records)
+  next_link = result[:next_link]
+  next_page = handler.execute(property_id: 'GCNS01', top: next_link[:top], skip: next_link[:skip])
+
+  # Process the next page
+  next_page[:values].each do |resident|
+    puts "Name: #{resident.full_name}"
+  end
+end
+```
 
 ## Contributing
 

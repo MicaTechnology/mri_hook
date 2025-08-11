@@ -12,7 +12,9 @@ module MriHook
       # @option params [String] :last_update_date The last update date
       # @option params [String] :start_date The start date
       # @option params [String] :end_date The end date (required if start_date is provided)
-      # @return [Array<MriHook::Models::Lease>] Array of lease objects
+      # @option params [Integer] :top The maximum number of records to return (default: 300)
+      # @option params [Integer] :skip The number of records to skip (default: nil)
+      # @return [Hash] Hash containing leases and next_link information
       def execute(params = {})
         validate_params(params)
 
@@ -60,15 +62,25 @@ module MriHook
         api_params['StartDate'] = params[:start_date] if params[:start_date]
         api_params['EndDate'] = params[:end_date] if params[:end_date]
 
+        # Add pagination parameters if provided
+        api_params[:top] = params[:top] if params[:top]
+        api_params[:skip] = params[:skip] if params[:skip]
+
         api_params
       end
 
       def parse_response(response)
-        return [] unless response['value']
+        return { values: [], next_link: nil } unless response['value']
 
-        response['value'].map do |lease_data|
+        leases = response['value'].map do |lease_data|
           MriHook::Models::Lease.new(lease_data)
         end
+
+        # Return both the leases and the next_link information
+        {
+          values: leases,
+          next_link: response['nextLink']
+        }
       end
     end
   end

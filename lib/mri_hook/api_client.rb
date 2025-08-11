@@ -2,6 +2,7 @@
 
 require 'rest-client'
 require 'json'
+require 'uri'
 
 module MriHook
   class ApiClient
@@ -17,6 +18,10 @@ module MriHook
     end
 
     def get(api_endpoint, params = {})
+      # Add top and skip parameters if provided
+      params['$top'] = params.delete(:top) if params[:top]
+      params['$skip'] = params.delete(:skip) if params[:skip]
+
       url = build_url(api_endpoint, params)
       headers = { content_type: :json, accept: :json }
       response = RestClient::Request.execute(
@@ -26,7 +31,28 @@ module MriHook
         user: @username,
         password: @password
       )
-      JSON.parse(response.body)
+
+      parsed_response = JSON.parse(response.body)
+
+      # Process nextLink if present
+      if parsed_response['nextLink']
+        next_link_url = parsed_response['nextLink']
+        uri = URI.parse(next_link_url)
+        query_params = URI.decode_www_form(uri.query).to_h
+
+        next_link = {
+          url: next_link_url,
+          top: query_params['$top'],
+          skip: query_params['$skip']
+        }
+
+        return {
+          'next_link' => next_link,
+          'value' => parsed_response['value']
+        }
+      end
+
+      parsed_response
     rescue RestClient::ExceptionWithResponse => e
       handle_error(e)
     end

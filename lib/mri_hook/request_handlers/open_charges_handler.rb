@@ -11,7 +11,9 @@ module MriHook
       # @option params [String] :property_id The MRI property ID (required when last_update is blank)
       # @option params [String] :last_update The last update date
       # @option params [String] :resident_id The resident ID/NameID (optional)
-      # @return [Array<MriHook::Models::BillingItem>] Array of billing item objects
+      # @option params [Integer] :top The maximum number of records to return (default: 300)
+      # @option params [Integer] :skip The number of records to skip (default: nil)
+      # @return [Hash] Hash containing billing items and next_link information
       def execute(params = {})
         validate_params(params)
 
@@ -54,15 +56,25 @@ module MriHook
         api_params['RMPROPID'] = params[:property_id] if params[:property_id]
         api_params['NameID'] = params[:resident_id] if params[:resident_id]
 
+        # Add pagination parameters if provided
+        api_params[:top] = params[:top] if params[:top]
+        api_params[:skip] = params[:skip] if params[:skip]
+
         api_params
       end
 
       def parse_response(response)
-        return [] unless response['value']
+        return { values: [], next_link: nil } unless response['value']
 
-        response['value'].map do |billing_item_data|
+        billing_items = response['value'].map do |billing_item_data|
           MriHook::Models::BillingItem.new(billing_item_data)
         end
+
+        # Return both the billing items and the next_link information
+        {
+          values: billing_items,
+          next_link: response['next_link']
+        }
       end
     end
   end

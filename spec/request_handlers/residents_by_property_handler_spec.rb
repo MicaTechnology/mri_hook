@@ -73,14 +73,30 @@ RSpec.describe MriHook::RequestHandlers::ResidentsByPropertyHandler do
         handler.execute(property_id: property_id)
       end
 
-      it "returns an array of Resident objects" do
-        residents = handler.execute(property_id: property_id)
+      it "returns a hash with residents and next_link information" do
+        result = handler.execute(property_id: property_id)
 
+        expect(result).to be_a(Hash)
+        expect(result).to have_key(:values)
+        expect(result).to have_key(:next_link)
+
+        residents = result[:values]
         expect(residents).to be_an(Array)
         expect(residents.size).to eq(2)
         expect(residents.first).to be_a(MriHook::Models::Resident)
         expect(residents.first.resident_name_id).to eq("0000000001")
         expect(residents.last.resident_name_id).to eq("0000000002")
+
+        expect(result[:next_link]).to eq(response_body['nextLink'])
+      end
+
+      it "supports pagination parameters" do
+        expect(handler.api_client).to receive(:get).with(
+          api_endpoint,
+          { "RMPROPID" => property_id, top: 50, skip: 100 }
+        )
+
+        handler.execute(property_id: property_id, top: 50, skip: 100)
       end
     end
 
@@ -95,11 +111,16 @@ RSpec.describe MriHook::RequestHandlers::ResidentsByPropertyHandler do
         allow(handler.api_client).to receive(:get).and_return({ "value" => [] })
       end
 
-      it "returns an empty array" do
-        residents = handler.execute(property_id: property_id)
+      it "returns a hash with empty values and nil next_link" do
+        result = handler.execute(property_id: property_id)
 
-        expect(residents).to be_an(Array)
-        expect(residents).to be_empty
+        expect(result).to be_a(Hash)
+        expect(result).to have_key(:values)
+        expect(result).to have_key(:next_link)
+
+        expect(result[:values]).to be_an(Array)
+        expect(result[:values]).to be_empty
+        expect(result[:next_link]).to be_nil
       end
     end
 
@@ -108,11 +129,16 @@ RSpec.describe MriHook::RequestHandlers::ResidentsByPropertyHandler do
         allow(handler.api_client).to receive(:get).and_return({})
       end
 
-      it "returns an empty array" do
-        residents = handler.execute(property_id: property_id)
+      it "returns a hash with empty values and nil next_link" do
+        result = handler.execute(property_id: property_id)
 
-        expect(residents).to be_an(Array)
-        expect(residents).to be_empty
+        expect(result).to be_a(Hash)
+        expect(result).to have_key(:values)
+        expect(result).to have_key(:next_link)
+
+        expect(result[:values]).to be_an(Array)
+        expect(result[:values]).to be_empty
+        expect(result[:next_link]).to be_nil
       end
     end
   end

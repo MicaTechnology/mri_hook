@@ -13,7 +13,9 @@ module MriHook
       # @option params [String] :end_date The end date (format: yyyy-mm-dd)
       # @option params [String] :resident_name_id The resident name ID
       # @option params [String] :property_id The property ID
-      # @return [Array<MriHook::Models::LedgerTransaction>] Array of ledger transaction objects
+      # @option params [Integer] :top The maximum number of records to return (default: 300)
+      # @option params [Integer] :skip The number of records to skip (default: nil)
+      # @return [Hash] Hash containing ledger transactions and next_link information
       def execute(params = {})
         validate_params(params)
 
@@ -53,20 +55,32 @@ module MriHook
       end
 
       def build_api_params(params)
-        {
+        api_params = {
           'STARTDATE' => params[:start_date],
           'ENDDATE' => params[:end_date],
           'NAMEID' => params[:resident_name_id],
           'PROPERTYID' => params[:property_id]
         }
+
+        # Add pagination parameters if provided
+        api_params[:top] = params[:top] if params[:top]
+        api_params[:skip] = params[:skip] if params[:skip]
+
+        api_params
       end
 
       def parse_response(response)
-        return [] unless response['value']
+        return { values: [], next_link: nil } unless response['value']
 
-        response['value'].map do |transaction_data|
+        transactions = response['value'].map do |transaction_data|
           MriHook::Models::LedgerTransaction.new(transaction_data)
         end
+
+        # Return both the transactions and the next_link information
+        {
+          values: transactions,
+          next_link: response['next_link']
+        }
       end
     end
   end

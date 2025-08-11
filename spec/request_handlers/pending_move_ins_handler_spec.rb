@@ -58,9 +58,14 @@ RSpec.describe MriHook::RequestHandlers::PendingMoveInsHandler do
         handler.execute(property_id: property_id)
       end
 
-      it "returns an array of PendingMoveIn objects" do
-        pending_move_ins = handler.execute(property_id: property_id)
+      it "returns a hash with pending move-ins and next_link information" do
+        result = handler.execute(property_id: property_id)
 
+        expect(result).to be_a(Hash)
+        expect(result).to have_key(:values)
+        expect(result).to have_key(:next_link)
+
+        pending_move_ins = result[:values]
         expect(pending_move_ins).to be_an(Array)
         expect(pending_move_ins.size).to eq(1)
         expect(pending_move_ins.first).to be_a(MriHook::Models::PendingMoveIn)
@@ -75,10 +80,13 @@ RSpec.describe MriHook::RequestHandlers::PendingMoveInsHandler do
         expect(pending_move_ins.first.scheduled_move_in_date).to eq("2025-06-18T00:00:00.0000000")
         expect(pending_move_ins.first.email).to eq("jlegorreta@granciudad.mx")
         expect(pending_move_ins.first.phone).to be_nil
+
+        expect(result[:next_link]).to eq(response_body['nextLink'])
       end
 
       it "includes previous address information" do
-        pending_move_ins = handler.execute(property_id: property_id)
+        result = handler.execute(property_id: property_id)
+        pending_move_ins = result[:values]
 
         expect(pending_move_ins.first.previous_addresses).to be_an(Array)
         expect(pending_move_ins.first.previous_addresses.size).to eq(1)
@@ -90,6 +98,15 @@ RSpec.describe MriHook::RequestHandlers::PendingMoveInsHandler do
         expect(pending_move_ins.first.previous_addresses.first.state).to eq("GT")
         expect(pending_move_ins.first.previous_addresses.first.zip).to eq("38900")
         expect(pending_move_ins.first.previous_addresses.first.country).to eq("MX")
+      end
+
+      it "supports pagination parameters" do
+        expect(handler.api_client).to receive(:get).with(
+          api_endpoint,
+          { "PropertyID" => property_id, top: 50, skip: 100 }
+        )
+
+        handler.execute(property_id: property_id, top: 50, skip: 100)
       end
     end
 
@@ -104,11 +121,16 @@ RSpec.describe MriHook::RequestHandlers::PendingMoveInsHandler do
         allow(handler.api_client).to receive(:get).and_return({ "value" => [] })
       end
 
-      it "returns an empty array" do
-        pending_move_ins = handler.execute(property_id: property_id)
+      it "returns a hash with empty values and nil next_link" do
+        result = handler.execute(property_id: property_id)
 
-        expect(pending_move_ins).to be_an(Array)
-        expect(pending_move_ins).to be_empty
+        expect(result).to be_a(Hash)
+        expect(result).to have_key(:values)
+        expect(result).to have_key(:next_link)
+
+        expect(result[:values]).to be_an(Array)
+        expect(result[:values]).to be_empty
+        expect(result[:next_link]).to be_nil
       end
     end
 
@@ -117,11 +139,16 @@ RSpec.describe MriHook::RequestHandlers::PendingMoveInsHandler do
         allow(handler.api_client).to receive(:get).and_return({})
       end
 
-      it "returns an empty array" do
-        pending_move_ins = handler.execute(property_id: property_id)
+      it "returns a hash with empty values and nil next_link" do
+        result = handler.execute(property_id: property_id)
 
-        expect(pending_move_ins).to be_an(Array)
-        expect(pending_move_ins).to be_empty
+        expect(result).to be_a(Hash)
+        expect(result).to have_key(:values)
+        expect(result).to have_key(:next_link)
+
+        expect(result[:values]).to be_an(Array)
+        expect(result[:values]).to be_empty
+        expect(result[:next_link]).to be_nil
       end
     end
   end

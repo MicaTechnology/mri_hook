@@ -141,10 +141,22 @@ RSpec.describe MriHook::RequestHandlers::ResidentsHandler do
   end
 
   let(:response_body) { old_response_body }
+  let(:processed_old_response_body) do
+    {
+      'value' => old_response_body['value'],
+      'next_link' => nil
+    }
+  end
+  let(:processed_new_response_body) do
+    {
+      'value' => new_response_body['value'],
+      'next_link' => new_response_body['nextLink']
+    }
+  end
 
   before do
     # Mock the API client
-    allow(handler.api_client).to receive(:get).and_return(response_body)
+    allow(handler.api_client).to receive(:get).and_return(processed_old_response_body)
   end
 
   describe "#execute" do
@@ -160,14 +172,21 @@ RSpec.describe MriHook::RequestHandlers::ResidentsHandler do
         handler.execute(last_update: last_update)
       end
 
-      it "returns an array of Resident objects" do
-        residents = handler.execute(last_update: last_update)
+      it "returns a hash with residents and next_link information" do
+        result = handler.execute(last_update: last_update)
 
+        expect(result).to be_a(Hash)
+        expect(result).to have_key(:values)
+        expect(result).to have_key(:next_link)
+
+        residents = result[:values]
         expect(residents).to be_an(Array)
         expect(residents.size).to eq(2)
         expect(residents.first).to be_a(MriHook::Models::Resident)
         expect(residents.first.resident_name_id).to eq("0000000001")
         expect(residents.last.resident_name_id).to eq("0000000002")
+
+        expect(result[:next_link]).to be_nil
       end
     end
 
@@ -247,11 +266,16 @@ RSpec.describe MriHook::RequestHandlers::ResidentsHandler do
         allow(handler.api_client).to receive(:get).and_return({ "value" => [] })
       end
 
-      it "returns an empty array" do
-        residents = handler.execute(last_update: "01-01-2024")
+      it "returns a hash with empty values and nil next_link" do
+        result = handler.execute(last_update: "01-01-2024")
 
-        expect(residents).to be_an(Array)
-        expect(residents).to be_empty
+        expect(result).to be_a(Hash)
+        expect(result).to have_key(:values)
+        expect(result).to have_key(:next_link)
+
+        expect(result[:values]).to be_an(Array)
+        expect(result[:values]).to be_empty
+        expect(result[:next_link]).to be_nil
       end
     end
 
@@ -260,22 +284,32 @@ RSpec.describe MriHook::RequestHandlers::ResidentsHandler do
         allow(handler.api_client).to receive(:get).and_return({})
       end
 
-      it "returns an empty array" do
-        residents = handler.execute(last_update: "01-01-2024")
+      it "returns a hash with empty values and nil next_link" do
+        result = handler.execute(last_update: "01-01-2024")
 
-        expect(residents).to be_an(Array)
-        expect(residents).to be_empty
+        expect(result).to be_a(Hash)
+        expect(result).to have_key(:values)
+        expect(result).to have_key(:next_link)
+
+        expect(result[:values]).to be_an(Array)
+        expect(result[:values]).to be_empty
+        expect(result[:next_link]).to be_nil
       end
     end
 
     context "with the new response format" do
       before do
-        allow(handler.api_client).to receive(:get).and_return(new_response_body)
+        allow(handler.api_client).to receive(:get).and_return(processed_new_response_body)
       end
 
-      it "correctly maps the response to Resident objects" do
-        residents = handler.execute(resident_name_id: "0000000298")
+      it "correctly maps the response to Resident objects and includes next_link information" do
+        result = handler.execute(resident_name_id: "0000000298")
 
+        expect(result).to be_a(Hash)
+        expect(result).to have_key(:values)
+        expect(result).to have_key(:next_link)
+
+        residents = result[:values]
         expect(residents).to be_an(Array)
         expect(residents.size).to eq(1)
 
@@ -314,6 +348,21 @@ RSpec.describe MriHook::RequestHandlers::ResidentsHandler do
         expect(resident.no_checks_in_web_cash_receipts).to eq("N")
         expect(resident.auto_spread_concessions).to eq("N")
         expect(resident.employment_monthly_income).to eq("0.0000")
+
+        # Check next_link information
+        next_link = result[:next_link]
+        expect(next_link).to eq(new_response_body['nextLink'])
+      end
+    end
+
+    context "with pagination parameters" do
+      it "passes top and skip parameters to the API" do
+        expect(handler.api_client).to receive(:get).with(
+          api_endpoint,
+          { "LastUpdate" => "01-01-2024", "IncludePII" => "Y", top: 50, skip: 100 }
+        )
+
+        handler.execute(last_update: "01-01-2024", top: 50, skip: 100)
       end
     end
   end

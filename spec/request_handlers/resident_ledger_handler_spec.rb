@@ -60,14 +60,19 @@ RSpec.describe MriHook::RequestHandlers::ResidentLedgerHandler do
         )
       end
 
-      it "returns an array of LedgerTransaction objects" do
-        transactions = handler.execute(
+      it "returns a hash with transactions and next_link information" do
+        result = handler.execute(
           start_date: start_date,
           end_date: end_date,
           resident_name_id: resident_name_id,
           property_id: property_id
         )
 
+        expect(result).to be_a(Hash)
+        expect(result).to have_key(:values)
+        expect(result).to have_key(:next_link)
+
+        transactions = result[:values]
         expect(transactions).to be_an(Array)
         expect(transactions.size).to eq(1)
         expect(transactions.first).to be_a(MriHook::Models::LedgerTransaction)
@@ -78,6 +83,31 @@ RSpec.describe MriHook::RequestHandlers::ResidentLedgerHandler do
         expect(transactions.first.transaction_amount).to eq("-1000.00")
         expect(transactions.first.payment?).to be true
         expect(transactions.first.charge?).to be false
+
+        expect(result[:next_link]).to be_nil
+      end
+
+      it "supports pagination parameters" do
+        expect(handler.api_client).to receive(:get).with(
+          api_endpoint,
+          {
+            "STARTDATE" => start_date,
+            "ENDDATE" => end_date,
+            "NAMEID" => resident_name_id,
+            "PROPERTYID" => property_id,
+            top: 50,
+            skip: 100
+          }
+        )
+
+        handler.execute(
+          start_date: start_date,
+          end_date: end_date,
+          resident_name_id: resident_name_id,
+          property_id: property_id,
+          top: 50,
+          skip: 100
+        )
       end
     end
 
@@ -152,16 +182,21 @@ RSpec.describe MriHook::RequestHandlers::ResidentLedgerHandler do
         allow(handler.api_client).to receive(:get).and_return({ "value" => [] })
       end
 
-      it "returns an empty array" do
-        transactions = handler.execute(
+      it "returns a hash with empty values and nil next_link" do
+        result = handler.execute(
           start_date: start_date,
           end_date: end_date,
           resident_name_id: resident_name_id,
           property_id: property_id
         )
 
-        expect(transactions).to be_an(Array)
-        expect(transactions).to be_empty
+        expect(result).to be_a(Hash)
+        expect(result).to have_key(:values)
+        expect(result).to have_key(:next_link)
+
+        expect(result[:values]).to be_an(Array)
+        expect(result[:values]).to be_empty
+        expect(result[:next_link]).to be_nil
       end
     end
 
@@ -170,16 +205,21 @@ RSpec.describe MriHook::RequestHandlers::ResidentLedgerHandler do
         allow(handler.api_client).to receive(:get).and_return({})
       end
 
-      it "returns an empty array" do
-        transactions = handler.execute(
+      it "returns a hash with empty values and nil next_link" do
+        result = handler.execute(
           start_date: start_date,
           end_date: end_date,
           resident_name_id: resident_name_id,
           property_id: property_id
         )
 
-        expect(transactions).to be_an(Array)
-        expect(transactions).to be_empty
+        expect(result).to be_a(Hash)
+        expect(result).to have_key(:values)
+        expect(result).to have_key(:next_link)
+
+        expect(result[:values]).to be_an(Array)
+        expect(result[:values]).to be_empty
+        expect(result[:next_link]).to be_nil
       end
     end
   end
