@@ -42,7 +42,7 @@ RSpec.describe MriHook::RequestHandlers::PaymentSubmitterHandler do
           "BatchDescription" => "Custom Description",
           "CheckURL" => "http://example.mrisoftware.com/checkImage",
           "DepositDate" => "2024-12-12",
-          "CashType" => "V2"
+          "CashType" => "VM"
         }
       ]
     }
@@ -75,7 +75,7 @@ RSpec.describe MriHook::RequestHandlers::PaymentSubmitterHandler do
           "ApplyToChargesThroughDate" => nil,
           "TrackingValue" => nil,
           "ApplyToDirectDebitOnly" => "N",
-          "CashType" => "V2"
+          "CashType" => "VM"
         }
       ]
     }
@@ -109,7 +109,7 @@ RSpec.describe MriHook::RequestHandlers::PaymentSubmitterHandler do
                 "BatchDescription" => "Custom Description",
                 "CheckURL" => "http://example.mrisoftware.com/checkImage",
                 "DepositDate" => "2024-12-12",
-                "CashType" => "V2"
+                "CashType" => "VM"
               }
             ]
           },

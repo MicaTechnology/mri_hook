@@ -269,7 +269,8 @@ payment = handler.execute(
   description: 'Custom Description',
   batch_description: 'Custom Description',
   check_url: 'http://example.mrisoftware.com/checkImage', # Optional, defaults to nil
-  deposit_date: DateTime.parse('2024-12-12') # Optional, defaults to paid_at
+  deposit_date: DateTime.parse('2024-12-12'), # Optional, defaults to paid_at
+  cash_type: "V2" # Optional, defaults to VM
 )
 
 # Process the payment response 

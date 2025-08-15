@@ -4,7 +4,7 @@ module MriHook
   module Models
     class Payment
       PARTNER_NAME = 'MICA'
-      CASH_TYPE = 'V2'
+      CASH_TYPE = 'VM'
       PAYMENT_TYPE = 'C'
 
       attr_accessor :resident_name_id, :property_id, :paid_at, :amount, :check_number,
@@ -43,7 +43,7 @@ module MriHook
         @apply_to_charges_through_date = params['ApplyToChargesThroughDate']
         @tracking_value = params['TrackingValue']
         @apply_to_direct_debit_only = params['ApplyToDirectDebitOnly']
-        @cash_type = params['CashType']
+        @cash_type = params[:cash_type] || params['CashType'] # Either received as a parameter from the request or from the response
       end
 
       # Convert the payment to a hash for the API request
@@ -65,7 +65,7 @@ module MriHook
           "BatchDescription" => @batch_description.to_s[0, 30], # MAX 30 chars
           "CheckURL" => @check_url,
           "DepositDate" => format_date(@deposit_date),
-          "CashType" => CASH_TYPE,
+          "CashType" => @cash_type || CASH_TYPE,
         }
       end
 
