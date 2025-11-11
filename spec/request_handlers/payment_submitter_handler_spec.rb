@@ -120,8 +120,8 @@ RSpec.describe MriHook::RequestHandlers::PaymentSubmitterHandler do
       end
 
       it "returns a Payment object with response data" do
-        payment = handler.execute(payment_params)
-
+        response = handler.execute(payment_params)
+        payment = response[:response]
         expect(payment).to be_a(MriHook::Models::Payment)
         expect(payment.transaction_id).to eq("00000530PP")
         expect(payment.resident_name_id).to eq("0000000467")
