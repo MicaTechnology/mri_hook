@@ -87,7 +87,7 @@ module MriHook
           payment.instance_variable_set("@#{attr_name}", value) if payment.respond_to?("#{attr_name}=")
         end
 
-        payment
+        { status: 200, response: payment }
       end
 
       def camel_case_to_snake_case(str)
