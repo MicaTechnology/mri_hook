@@ -106,7 +106,7 @@ RSpec.describe MriHook::Models::Payment do
       expect(api_hash["BatchDescription"]).to eq("Custom Description")
       expect(api_hash["CheckURL"]).to eq("http://example.mrisoftware.com/checkImage")
       expect(api_hash["DepositDate"]).to eq("2024-12-12")
-      expect(api_hash["CashType"]).to eq("V2")
+      expect(api_hash["CashType"]).to eq("VM")
     end
 
     it "truncates fields that exceed the maximum length" do
