@@ -132,6 +132,16 @@ RSpec.describe MriHook::Models::Payment do
       expect(api_hash["DepositDate"]).to eq("2024-12-12")
     end
 
+    it "handles nil dates" do
+      params = payment_params.dup
+      params[:paid_at] = nil
+      params[:deposit_date] = nil
+      payment = described_class.new(params)
+      api_hash = payment.to_api_hash
+      expect(api_hash["PaymentInitiationDatetime"]).to be_nil
+      expect(api_hash["DepositDate"]).to be_nil
+    end
+
     it "handles dates that are already strings" do
       params = payment_params.merge(
         paid_at: "2024-02-22",
@@ -148,4 +158,5 @@ RSpec.describe MriHook::Models::Payment do
       expect(api_hash["PaymentAmount"]).to eq("1000.00")
     end
   end
+
 end
