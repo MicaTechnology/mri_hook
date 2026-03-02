@@ -17,6 +17,7 @@ require_relative "mri_hook/request_handlers/open_charges_handler"
 require_relative "mri_hook/request_handlers/pending_move_ins_handler"
 require_relative "mri_hook/request_handlers/resident_ledger_handler"
 require_relative "mri_hook/request_handlers/payment_submitter_handler"
+require_relative "mri_hook/request_handlers/credit_balance_submitter_handler"
 
 module MriHook
   class Error < StandardError; end
