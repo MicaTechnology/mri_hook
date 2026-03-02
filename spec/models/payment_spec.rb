@@ -132,6 +132,17 @@ RSpec.describe MriHook::Models::Payment do
       expect(api_hash["DepositDate"]).to eq("2024-12-12")
     end
 
+    it "handles dates that are already strings" do
+      params = payment_params.merge(
+        paid_at: "2024-02-22",
+        deposit_date: "2024-12-12"
+      )
+      payment = described_class.new(params)
+      api_hash = payment.to_api_hash
+      expect(api_hash["PaymentInitiationDatetime"]).to eq("2024-02-22")
+      expect(api_hash["DepositDate"]).to eq("2024-12-12")
+    end
+
     it "formats amounts correctly" do
       api_hash = subject.to_api_hash
       expect(api_hash["PaymentAmount"]).to eq("1000.00")

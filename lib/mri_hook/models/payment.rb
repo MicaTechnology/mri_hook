@@ -77,6 +77,8 @@ module MriHook
       # @return [String] the formatted date
       def format_date(date)
         return nil unless date
+        return date if date.is_a?(String)
+
         date.strftime('%Y-%m-%d')
       end
 
