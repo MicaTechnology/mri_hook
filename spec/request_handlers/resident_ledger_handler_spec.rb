@@ -109,6 +109,27 @@ RSpec.describe MriHook::RequestHandlers::ResidentLedgerHandler do
           skip: 100
         )
       end
+
+      it "supports _next pagination parameter" do
+        expect(handler.api_client).to receive(:get).with(
+          api_endpoint,
+          {
+            "STARTDATE" => start_date,
+            "ENDDATE" => end_date,
+            "NAMEID" => resident_name_id,
+            "PROPERTYID" => property_id,
+            _next: "ae4940b2ae3c4f29"
+          }
+        )
+
+        handler.execute(
+          start_date: start_date,
+          end_date: end_date,
+          resident_name_id: resident_name_id,
+          property_id: property_id,
+          _next: "ae4940b2ae3c4f29"
+        )
+      end
     end
 
     context "with missing parameters" do
@@ -220,6 +241,16 @@ RSpec.describe MriHook::RequestHandlers::ResidentLedgerHandler do
         expect(result[:values]).to be_an(Array)
         expect(result[:values]).to be_empty
         expect(result[:next_link]).to be_nil
+      end
+    end
+
+    context "with custom credentials" do
+      it "passes credentials to the API client" do
+        credentials = { base_domain: "https://custom.mri.com", base_endpoint: "/api.asp", username: "user", password: "pass" }
+
+        expect(MriHook::ApiClient).to receive(:new).with(**credentials).and_call_original
+
+        described_class.new(credentials: credentials)
       end
     end
   end

@@ -8,19 +8,19 @@ module MriHook
   class ApiClient
     attr_reader :base_url
 
-    def initialize
-      @base_domain = ENV.fetch('BASE_MRI_DOMAIN')
-      @base_endpoint = ENV.fetch('BASE_MRI_API_ENDPOINT')
+    def initialize(base_domain: nil, base_endpoint: nil, username: nil, password: nil)
+      @base_domain = base_domain || ENV.fetch('BASE_MRI_DOMAIN')
+      @base_endpoint = base_endpoint || ENV.fetch('BASE_MRI_API_ENDPOINT')
       @base_url = "#{@base_domain}#{@base_endpoint}"
-      @username = ENV.fetch('MRI_USERNAME')
-      @password = ENV.fetch('MRI_PASSWORD')
+      @username = username || ENV.fetch('MRI_USERNAME')
+      @password = password || ENV.fetch('MRI_PASSWORD')
       @auth = { username: @username, password: @password }
     end
 
     def get(api_endpoint, params = {})
-      # Add top and skip parameters if provided
       params['$top'] = params.delete(:top) if params[:top]
       params['$skip'] = params.delete(:skip) if params[:skip]
+      params['_next'] = params.delete(:_next) if params[:_next]
 
       url = build_url(api_endpoint, params)
       headers = { content_type: :json, accept: :json }
@@ -33,26 +33,7 @@ module MriHook
       )
 
       parsed_response = JSON.parse(response.body)
-
-      # Process nextLink if present
-      if parsed_response['nextLink']
-        next_link_url = parsed_response['nextLink']
-        uri = URI.parse(next_link_url)
-        query_params = URI.decode_www_form(uri.query).to_h
-
-        next_link = {
-          url: next_link_url,
-          top: query_params['$top'],
-          skip: query_params['$skip']
-        }
-
-        return {
-          'next_link' => next_link,
-          'value' => parsed_response['value']
-        }
-      end
-
-      parsed_response
+      normalize_response(parsed_response)
     rescue RestClient::ExceptionWithResponse => e
       handle_error(e)
     end
@@ -93,6 +74,24 @@ module MriHook
     def build_metadata_url(api_endpoint)
       container_name = api_endpoint.downcase
       "#{@base_url}?$api=#{api_endpoint}&$metadata#MRI.#{container_name}-container/#{container_name}"
+    end
+
+    def normalize_response(parsed_response)
+      if parsed_response['nextLink']
+        uri = URI.parse(parsed_response['nextLink'])
+        query_params = URI.decode_www_form(uri.query).to_h
+
+        return {
+          'next_link' => {
+            top: query_params['$top'],
+            skip: query_params['$skip'],
+            _next: query_params['_next']
+          },
+          'value' => parsed_response['value']
+        }
+      end
+
+      parsed_response
     end
 
     def handle_error(exception)

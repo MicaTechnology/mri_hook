@@ -65,6 +65,7 @@ module MriHook
         # Add pagination parameters if provided
         api_params[:top] = params[:top] if params[:top]
         api_params[:skip] = params[:skip] if params[:skip]
+        api_params[:_next] = params[:_next] if params[:_next]
 
         api_params
       end

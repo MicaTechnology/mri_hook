@@ -5,8 +5,8 @@ module MriHook
     class BaseHandler
       attr_reader :api_client
 
-      def initialize
-        @api_client = MriHook::ApiClient.new
+      def initialize(credentials: {})
+        @api_client = MriHook::ApiClient.new(**credentials)
       end
 
       def execute(params = {})
