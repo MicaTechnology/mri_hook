@@ -98,7 +98,7 @@ module MriHook
       error_response = exception.response
       error_body = JSON.parse(error_response.body) rescue {}
       {
-        status: error_response.code,
+        status: error_response&.code || 599,
         message: error_body['error'] || error_body['message'] || "An error occurred: #{exception}"
       }
     end
