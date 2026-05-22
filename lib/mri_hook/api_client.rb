@@ -56,7 +56,9 @@ module MriHook
         payload: payload.to_json,
         headers: headers,
         user: @username,
-        password: @password
+        password: @password,
+        timeout: 120,
+        open_timeout: 30
       )
       JSON.parse(response.body)
     rescue RestClient::ExceptionWithResponse => e
