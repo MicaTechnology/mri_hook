@@ -246,6 +246,42 @@ if result[:next_link]
 end
 ```
 
+### Getting Ledger Applies
+
+The LedgerAppliesHandler reports how much of each ledger transaction MRI settled against which
+other transaction. This matters because the resident ledger's `ReferenceNumber` names only one
+counterpart: when MRI splits a credit across several charges, the split is visible only here.
+
+MRI does not label which side of a row is the charge. `OriginalTransaction` is the transaction that
+triggered the apply and `PostedTransaction` the one already sitting open, so a charge appears on
+either side depending on which was posted first. Resolve the roles by looking both ids up in the
+resident ledger and reading their signs, and use `applied_amount` for the magnitude settled.
+
+```ruby
+# Create a handler for the ledger applies endpoint
+handler = MriHook::RequestHandlers::LedgerAppliesHandler.new
+
+# Get every allocation for a resident at a property
+# Note: resident_name_id and property_id are required; start_date and end_date are optional
+result = handler.execute(
+  resident_name_id: '0000010449',
+  property_id: 'GCCH01'
+)
+
+# Process the applies
+result[:values].each do |apply|
+  puts "Original transaction: #{apply.original_transaction}"
+  puts "Posted transaction: #{apply.posted_transaction}"
+  puts "Applied: #{apply.applied_amount}"
+  puts "---"
+end
+
+# Group by charge to see everything that settled it
+result[:values].group_by(&:posted_transaction).each do |transaction_id, applies|
+  puts "#{transaction_id} settled by #{applies.sum(&:applied_amount)} across #{applies.size} row(s)"
+end
+```
+
 ### Posting Payment Details
 
 The PaymentSubmitterHandler allows you to post payment details to MRI:

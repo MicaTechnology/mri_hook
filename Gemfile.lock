@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    mri_hook (0.1.5)
+    mri_hook (1.0.8)
       activesupport (>= 6.1)
       rest-client (~> 2.1)
 
